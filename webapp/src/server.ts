@@ -7,9 +7,15 @@ import { apiConfig } from "./config";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Validate session secret in production
+const sessionSecret = process.env.SESSION_SECRET;
+if (process.env.NODE_ENV === "production" && !sessionSecret) {
+    throw new Error("SESSION_SECRET environment variable is required in production");
+}
+
 // Session configuration
 app.use(session({
-    secret: process.env.SESSION_SECRET || "development-secret-change-in-production",
+    secret: sessionSecret || "development-secret-for-local-testing-only",
     resave: false,
     saveUninitialized: false,
     cookie: {

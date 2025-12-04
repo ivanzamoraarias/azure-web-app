@@ -4,6 +4,8 @@ node_modules/
 # Build outputs
 dist/
 *.js.map
+infra/*.json
+!infra/parameters.json
 
 # Environment files
 .env

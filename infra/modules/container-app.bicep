@@ -27,6 +27,9 @@ param appInsightsConnectionString string
 @description('API Management gateway URL')
 param apimGatewayUrl string
 
+// Azure AD login URL - using environment().authentication for cloud compatibility
+var aadLoginUrl = environment().authentication.loginEndpoint
+
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
   name: containerRegistryName
 }
@@ -111,7 +114,7 @@ resource authConfig 'Microsoft.App/containerApps/authConfigs@2023-05-01' = {
         enabled: true
         registration: {
           clientId: clientId
-          openIdIssuer: 'https://sts.windows.net/${tenantId}/v2.0'
+          openIdIssuer: '${aadLoginUrl}${tenantId}/v2.0'
         }
         validation: {
           allowedAudiences: [
