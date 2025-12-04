@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Web App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .tab:hover:not(.active) {
+            background: white;
+        }
+
+        .content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .card .email {
+            color: #667eea;
+        }
+
+        .card .price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+        .card .category {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #4f46e5;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .card .role {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .role.admin {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .role.user {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .role.moderator {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #5563d8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">Azure Web App</div>
+            <div class="user-info">
+                <span class="user-name" id="userName">Loading...</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showSection('users')">Users</button>
+            <button class="tab" onclick="showSection('products')">Products</button>
+        </div>
+
+        <div class="content">
+            <div id="users" class="section active">
+                <h2>Users</h2>
+                <button class="refresh-btn" onclick="loadUsers()">Refresh</button>
+                <div id="usersContainer" class="card-grid">
+                    <div class="loading">Loading users...</div>
+                </div>
+            </div>
+
+            <div id="products" class="section">
+                <h2>Products</h2>
+                <button class="refresh-btn" onclick="loadProducts()">Refresh</button>
+                <div id="productsContainer" class="card-grid">
+                    <div class="loading">Loading products...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load user info
+        async function loadUserInfo() {
+            try {
+                const response = await fetch('/api/me');
+                const data = await response.json();
+                if (data.authenticated && data.user) {
+                    document.getElementById('userName').textContent = data.user.name || data.user.username;
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+            }
+        }
+
+        // Load users
+        async function loadUsers() {
+            const container = document.getElementById('usersContainer');
+            container.innerHTML = '<div class="loading">Loading users...</div>';
+            
+            try {
+                const response = await fetch('/api/users');
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    container.innerHTML = data.data.map(user => `
+                        <div class="card">
+                            <h3>${escapeHtml(user.name)}</h3>
+                            <p class="email">${escapeHtml(user.email)}</p>
+                            <span class="role ${user.role}">${escapeHtml(user.role)}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div class="error">Failed to load users</div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="error">Error loading users: ' + escapeHtml(error.message) + '</div>';
+            }
+        }
+
+        // Load products
+        async function loadProducts() {
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = '<div class="loading">Loading products...</div>';
+            
+            try {
+                const response = await fetch('/api/products');
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    container.innerHTML = data.data.map(product => `
+                        <div class="card">
+                            <h3>${escapeHtml(product.name)}</h3>
+                            <p>${escapeHtml(product.description)}</p>
+                            <p class="price">$${product.price.toFixed(2)}</p>
+                            <span class="category">${escapeHtml(product.category)}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div class="error">Failed to load products</div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="error">Error loading products: ' + escapeHtml(error.message) + '</div>';
+            }
+        }
+
+        // Switch sections
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Logout
+        function logout() {
+            window.location.href = '/logout';
+        }
+
+        // HTML escape function
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize
+        loadUserInfo();
+        loadUsers();
+        loadProducts();
+    </script>
+</body>
+</html>

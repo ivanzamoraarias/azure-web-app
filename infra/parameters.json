@@ -1,0 +1,18 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "value": "dev"
+    },
+    "tenantId": {
+      "value": "<YOUR_TENANT_ID>"
+    },
+    "webAppClientId": {
+      "value": "<YOUR_WEB_APP_CLIENT_ID>"
+    },
+    "apiClientId": {
+      "value": "<YOUR_API_CLIENT_ID>"
+    }
+  }
+}
