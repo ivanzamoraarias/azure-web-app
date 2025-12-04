@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import session from "express-session";
+import rateLimit from "express-rate-limit";
 import path from "path";
 import { getAuthUrl, handleCallback, getLogoutUrl, requireAuth, isAuthenticated, getAccessToken } from "./auth";
 import { apiConfig } from "./config";
@@ -12,6 +13,18 @@ const sessionSecret = process.env.SESSION_SECRET;
 if (process.env.NODE_ENV === "production" && !sessionSecret) {
     throw new Error("SESSION_SECRET environment variable is required in production");
 }
+
+// Rate limiting configuration
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Too many requests, please try again later." }
+});
+
+// Apply rate limiting to all routes
+app.use(limiter);
 
 // Session configuration
 app.use(session({
